@@ -3,28 +3,27 @@ import { Link } from 'react-router-dom'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
-export type ButtonVariant = 'primary' | 'secondary' | 'sunset' | 'ghost' | 'danger' | 'outline'
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline' | 'success'
 export type ButtonSize = 'sm' | 'md' | 'lg'
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-gradient-to-br from-ocean-600 to-sky-500 text-white shadow-[0_14px_28px_rgba(2,132,199,0.28)] hover:shadow-[0_18px_36px_rgba(2,132,199,0.36)]',
-  secondary: 'border border-line bg-white/95 text-ink shadow-sm hover:bg-white',
-  sunset:
-    'bg-gradient-to-br from-sunset-500 to-orange-400 text-white shadow-[0_14px_28px_rgba(249,115,22,0.28)] hover:shadow-[0_18px_36px_rgba(249,115,22,0.36)]',
-  ghost: 'bg-transparent text-ocean-600 hover:bg-ocean-50',
-  danger: 'bg-red-50 text-red-700 hover:bg-red-100',
-  outline: 'border border-ocean-600 text-ocean-600 hover:bg-ocean-50',
+    'bg-brand-600 text-white shadow-sm hover:bg-brand-700 active:bg-brand-800',
+  secondary: 'border border-stone-200 bg-white text-stone-700 shadow-sm hover:bg-stone-50',
+  ghost: 'bg-transparent text-stone-600 hover:bg-stone-100 hover:text-stone-900',
+  danger: 'bg-danger-500 text-white hover:bg-danger-700',
+  outline: 'border border-brand-200 text-brand-700 hover:bg-brand-50',
+  success: 'bg-success-500 text-white hover:bg-success-700',
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'h-9 px-4 text-[0.85rem] gap-1.5',
-  md: 'h-11 px-5 text-sm gap-2',
-  lg: 'h-12 px-7 text-[0.95rem] gap-2',
+  sm: 'h-9 px-4 text-[0.82rem] gap-1.5',
+  md: 'h-10 px-5 text-sm gap-2',
+  lg: 'h-12 px-6 text-sm gap-2',
 }
 
 const baseClasses =
-  'inline-flex select-none items-center justify-center rounded-full font-bold transition-all duration-200 hover:scale-105 active:scale-95 disabled:pointer-events-none disabled:opacity-55'
+  'inline-flex select-none items-center justify-center rounded-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-55'
 
 type CommonProps = {
   variant?: ButtonVariant
@@ -78,9 +77,9 @@ export function Button(props: ButtonProps) {
 
   return (
     <motion.button
-      whileTap={{ scale: 0.96 }}
+      whileTap={{ scale: 0.98 }}
       className={resolveClasses(variant, size, className)}
-      {...(rest as ButtonHTMLAttributes<HTMLButtonElement>)}
+      {...(rest as any)}
     >
       {children}
     </motion.button>

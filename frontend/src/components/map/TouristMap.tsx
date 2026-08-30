@@ -4,10 +4,11 @@ import { MarkerPopup } from '@/components/map/MarkerPopup'
 import { cn } from '@/lib/utils'
 import type { Place } from '@/types/place'
 
-const LeafletMap = MapContainer as never
-const LeafletMarker = Marker as never
-const LeafletPopup = Popup as never
-const LeafletPolyline = Polyline as never
+const LeafletMap = MapContainer as any
+const LeafletMarker = Marker as any
+const LeafletPopup = Popup as any
+const LeafletPolyline = Polyline as any
+const LeafletTileLayer = TileLayer as any
 
 const placeIcon = divIcon({ className: '', html: '<span class="vf-pin"></span>', iconSize: [26, 26], iconAnchor: [13, 26] })
 const userIcon = divIcon({ className: '', html: '<span class="vf-pin vf-pin-user"></span>', iconSize: [26, 26], iconAnchor: [13, 26] })
@@ -27,9 +28,9 @@ export function TouristMap({ places = [], center, zoom = 12, routePoints = [], u
   const route = routePoints.filter((point): point is RoutePoint => Array.isArray(point))
 
   return (
-    <div className={cn('marker-bounce overflow-hidden rounded-[28px] border border-line', className)}>
+    <div className={cn('marker-bounce overflow-hidden rounded-2xl border border-stone-200', className)}>
       <LeafletMap center={center} zoom={zoom} className="z-0 h-full w-full" scrollWheelZoom>
-        <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <LeafletTileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {places.map((place) => (
           <LeafletMarker key={place.id} position={[place.latitude, place.longitude]} icon={placeIcon}>
             <LeafletPopup offset={[0, -12]}>
@@ -42,7 +43,7 @@ export function TouristMap({ places = [], center, zoom = 12, routePoints = [], u
             <LeafletPopup offset={[0, -12]}>Your current location</LeafletPopup>
           </LeafletMarker>
         ) : null}
-        {route.length >= 2 ? <LeafletPolyline positions={route} pathOptions={{ color: '#0284c7', weight: 4, opacity: 0.8 }} /> : null}
+        {route.length >= 2 ? <LeafletPolyline positions={route} pathOptions={{ color: '#4f46e5', weight: 4, opacity: 0.8 }} /> : null}
       </LeafletMap>
     </div>
   )

@@ -1,10 +1,10 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Compass, Menu, Search, UserCircle2, X } from 'lucide-react'
+import { ChevronDown, Compass, LogOut, Map, Menu, Search, User, X } from 'lucide-react'
 import { BrowserRouter, Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import 'leaflet/dist/leaflet.css'
-import './App.css'
+import { Avatar } from '@/components/ui/Avatar'
 import { AsyncState } from '@/components/AsyncState'
 import { useAuthStore } from '@/store/auth'
 
@@ -24,8 +24,8 @@ const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage').then((module
 
 function RouteFallback() {
   return (
-    <main className="page shell-page">
-      <AsyncState message="Loading page..." />
+    <main className="mx-auto flex w-full max-w-[1320px] px-6 py-16">
+      <AsyncState message="Loading page..." className="w-full" />
     </main>
   )
 }
@@ -35,6 +35,8 @@ function Header() {
   const { user, ready, logout } = useAuthStore()
   const [search, setSearch] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [userOpen, setUserOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   const navItems = useMemo(
     () => [
@@ -44,6 +46,14 @@ function Header() {
     ],
     [],
   )
+
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setUserOpen(false)
+    }
+    document.addEventListener('mousedown', onClick)
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [])
 
   function submitSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -58,62 +68,102 @@ function Header() {
     navigate('/login')
   }
 
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+    isActive
+      ? 'text-brand-600 font-semibold'
+      : 'text-stone-600 hover:text-stone-900 font-medium'
+
   return (
-    <header className="site-header">
-      <div className="shell shell-header">
-        <Link className="brand" to="/">
-          <span className="brand-mark">
+    <header className="sticky top-0 z-40 border-b border-stone-200 bg-white/90 backdrop-blur-md">
+      <div className="shell flex h-16 items-center justify-between gap-4">
+        <Link className="flex items-center gap-2.5" to="/">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 text-white shadow-sm">
             <Compass size={18} />
           </span>
-          <span>
-            <strong>Visit Flow</strong>
-            <small>Local day visit planner</small>
-          </span>
+          <span className="text-lg font-bold tracking-tight text-stone-900">VisitFlow</span>
         </Link>
 
-        <form className="global-search" onSubmit={submitSearch} role="search">
-          <Search size={18} />
-          <input
-            aria-label="Search destinations"
-            placeholder="Search destinations, beaches, places..."
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-          <button type="submit">Search</button>
+        <form className="hidden max-w-md flex-1 md:block" onSubmit={submitSearch} role="search">
+          <div className="relative">
+            <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+            <input
+              aria-label="Search destinations"
+              placeholder="Search destinations, beaches, places..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="h-10 w-full rounded-xl border border-stone-200 bg-stone-50 pl-10 pr-4 text-sm text-stone-900 placeholder:text-stone-400 transition focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-500/10"
+            />
+          </div>
         </form>
 
-        <nav className="nav-desktop" aria-label="Primary">
+        <nav className="hidden items-center gap-6 lg:flex" aria-label="Primary">
           {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+            <NavLink key={item.to} to={item.to} className={navLinkClass}>
               {item.label}
             </NavLink>
           ))}
+
           {ready && user ? (
-            <>
-              <NavLink to="/saved-trips" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-                My Trips
-              </NavLink>
-              <NavLink to="/profile" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-                Profile
-              </NavLink>
-              {user.role === 'admin' ? (
-                <NavLink to="/admin" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-                  Admin
-                </NavLink>
-              ) : null}
-              <button className="nav-pill" type="button" onClick={handleSignOut}>
-                Sign out
+            <div className="relative" ref={menuRef}>
+              <button
+                type="button"
+                onClick={() => setUserOpen((open) => !open)}
+                className="flex items-center gap-2 rounded-full p-1 transition hover:bg-stone-100"
+                aria-haspopup="menu"
+                aria-expanded={userOpen}
+              >
+                <Avatar name={user.name} size={34} />
+                <ChevronDown size={16} className="text-stone-400" />
               </button>
-            </>
+              <AnimatePresence>
+                {userOpen ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-lg"
+                  >
+                    <div className="border-b border-stone-100 px-4 py-3">
+                      <p className="truncate text-sm font-semibold text-stone-900">{user.name}</p>
+                      <p className="truncate text-xs text-stone-400">{user.email}</p>
+                    </div>
+                    <div className="p-1.5">
+                      <Link to="/saved-trips" onClick={() => setUserOpen(false)} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-stone-600 transition hover:bg-stone-100 hover:text-stone-900">
+                        <Map size={16} /> My Trips
+                      </Link>
+                      <Link to="/profile" onClick={() => setUserOpen(false)} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-stone-600 transition hover:bg-stone-100 hover:text-stone-900">
+                        <User size={16} /> Profile
+                      </Link>
+                      {user.role === 'admin' ? (
+                        <Link to="/admin" onClick={() => setUserOpen(false)} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-stone-600 transition hover:bg-stone-100 hover:text-stone-900">
+                          <Compass size={16} /> Admin
+                        </Link>
+                      ) : null}
+                      <button type="button" onClick={handleSignOut} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-danger-700 transition hover:bg-danger-50">
+                        <LogOut size={16} /> Sign out
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </div>
           ) : (
-            <Link className="nav-pill" to="/login">
-              <UserCircle2 size={16} />
-              Login
+            <Link
+              to="/login"
+              className="inline-flex h-10 items-center gap-2 rounded-lg bg-brand-600 px-5 text-sm font-semibold text-white transition hover:bg-brand-700"
+            >
+              <User size={16} /> Login
             </Link>
           )}
         </nav>
 
-        <button className="menu-toggle" type="button" aria-label={menuOpen ? 'Close menu' : 'Open menu'} onClick={() => setMenuOpen((state) => !state)}>
+        <button
+          className="grid h-10 w-10 place-items-center rounded-lg text-stone-700 transition hover:bg-stone-100 lg:hidden"
+          type="button"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          onClick={() => setMenuOpen((state) => !state)}
+        >
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
@@ -121,38 +171,50 @@ function Header() {
       <AnimatePresence>
         {menuOpen ? (
           <motion.div
-            className="mobile-menu"
-            initial={{ opacity: 0, y: -12 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
+            className="border-t border-stone-100 bg-white lg:hidden"
           >
-            <div className="shell mobile-menu-inner">
+            <div className="shell flex flex-col gap-1 py-3">
+              <form className="mb-2 md:hidden" onSubmit={submitSearch} role="search">
+                <div className="relative">
+                  <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                  <input
+                    aria-label="Search destinations"
+                    placeholder="Search destinations..."
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    className="h-10 w-full rounded-xl border border-stone-200 bg-stone-50 pl-10 pr-4 text-sm text-stone-900 placeholder:text-stone-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-500/10"
+                  />
+                </div>
+              </form>
               {navItems.map((item) => (
-                <NavLink key={item.to} to={item.to} className="mobile-link" onClick={() => setMenuOpen(false)}>
+                <NavLink key={item.to} to={item.to} className={({ isActive }) => `rounded-lg px-3 py-2.5 text-sm font-medium transition ${isActive ? 'bg-brand-50 text-brand-700' : 'text-stone-700 hover:bg-stone-100'}`} onClick={() => setMenuOpen(false)}>
                   {item.label}
                 </NavLink>
               ))}
               {ready && user ? (
                 <>
-                  <NavLink to="/saved-trips" className="mobile-link" onClick={() => setMenuOpen(false)}>
+                  <NavLink to="/saved-trips" className="rounded-lg px-3 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-100" onClick={() => setMenuOpen(false)}>
                     My Trips
                   </NavLink>
-                  <NavLink to="/profile" className="mobile-link" onClick={() => setMenuOpen(false)}>
+                  <NavLink to="/profile" className="rounded-lg px-3 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-100" onClick={() => setMenuOpen(false)}>
                     Profile
                   </NavLink>
                   {user.role === 'admin' ? (
-                    <NavLink to="/admin" className="mobile-link" onClick={() => setMenuOpen(false)}>
+                    <NavLink to="/admin" className="rounded-lg px-3 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-100" onClick={() => setMenuOpen(false)}>
                       Admin
                     </NavLink>
                   ) : null}
-                  <button className="nav-pill mobile-cta" type="button" onClick={handleSignOut}>
+                  <button type="button" onClick={handleSignOut} className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-danger-700 transition hover:bg-danger-50">
                     Sign out
                   </button>
                 </>
               ) : (
-                <Link className="nav-pill mobile-cta" to="/login" onClick={() => setMenuOpen(false)}>
-                  Login
+                <Link to="/login" className="rounded-lg px-3 py-2.5 text-sm font-medium text-brand-600 transition hover:bg-brand-50" onClick={() => setMenuOpen(false)}>
+                  <span className="inline-flex items-center gap-2"><User size={16} /> Login</span>
                 </Link>
               )}
             </div>
@@ -165,27 +227,47 @@ function Header() {
 
 function Footer() {
   return (
-    <footer className="site-footer">
-      <div className="shell footer-grid">
-        <div>
-          <div className="footer-brand">Visit Flow</div>
-          <p>API-driven local tourism discovery for one-day travel plans around your region.</p>
+    <footer className="border-t border-stone-200 bg-white mt-16">
+      <div className="shell grid gap-10 py-12 md:grid-cols-4">
+        <div className="md:col-span-1">
+          <div className="flex items-center gap-2.5">
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-white">
+              <Compass size={16} />
+            </span>
+            <span className="text-lg font-bold tracking-tight text-stone-900">VisitFlow</span>
+          </div>
+          <p className="mt-3 max-w-xs text-sm leading-relaxed text-stone-500">
+            Discover nearby places and craft the perfect one-day itinerary around your region.
+          </p>
         </div>
         <div>
-          <h3>Explore</h3>
-          <Link to="/explore">Places</Link>
-          <Link to="/map">Map</Link>
-          <Link to="/planner">Planner</Link>
+          <h3 className="text-sm font-semibold text-stone-900">Explore</h3>
+          <ul className="mt-3 space-y-2 text-sm text-stone-500">
+            <li><Link to="/explore" className="transition hover:text-stone-900">Places</Link></li>
+            <li><Link to="/map" className="transition hover:text-stone-900">Map</Link></li>
+            <li><Link to="/planner" className="transition hover:text-stone-900">Planner</Link></li>
+          </ul>
         </div>
         <div>
-          <h3>Support</h3>
-          <Link to="/login">Account</Link>
-          <Link to="/saved-trips">My Trips</Link>
-          <Link to="/favourites">Favourites</Link>
+          <h3 className="text-sm font-semibold text-stone-900">Account</h3>
+          <ul className="mt-3 space-y-2 text-sm text-stone-500">
+            <li><Link to="/login" className="transition hover:text-stone-900">Sign in</Link></li>
+            <li><Link to="/register" className="transition hover:text-stone-900">Create account</Link></li>
+            <li><Link to="/saved-trips" className="transition hover:text-stone-900">My Trips</Link></li>
+            <li><Link to="/favourites" className="transition hover:text-stone-900">Favourites</Link></li>
+          </ul>
         </div>
         <div>
-          <h3>Platform</h3>
-          <p>Powered by Laravel + MySQL as the source of truth and React for the travel experience.</p>
+          <h3 className="text-sm font-semibold text-stone-900">Platform</h3>
+          <p className="mt-3 text-sm leading-relaxed text-stone-500">
+            Powered by Laravel + MySQL as the source of truth and React for the travel experience.
+          </p>
+        </div>
+      </div>
+      <div className="border-t border-stone-100">
+        <div className="shell flex flex-col items-center justify-between gap-2 py-5 text-xs text-stone-400 sm:flex-row">
+          <span>© {new Date().getFullYear()} VisitFlow. All rights reserved.</span>
+          <span>Local day visit planner</span>
         </div>
       </div>
     </footer>
@@ -200,10 +282,10 @@ function AppRoutes() {
       <AnimatePresence mode="wait">
         <motion.div
           key={location.pathname + location.search}
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12 }}
-          transition={{ duration: 0.28, ease: 'easeOut' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
         >
           <Routes location={location}>
             <Route path="/" element={<HomePage />} />
@@ -237,9 +319,11 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="app-shell">
+      <div className="flex min-h-screen flex-col bg-stone-50">
         <Header />
-        <AppRoutes />
+        <main className="flex-1">
+          <AppRoutes />
+        </main>
         <Footer />
       </div>
       <Toaster richColors />

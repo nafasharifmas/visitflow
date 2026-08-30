@@ -3,15 +3,24 @@ import { cn } from '@/lib/utils'
 
 type CardProps = HTMLAttributes<HTMLDivElement> & {
   hover?: boolean
+  padding?: 'none' | 'sm' | 'md' | 'lg'
 }
 
-export function Card({ className, hover = false, ...props }: CardProps) {
+const paddingMap = {
+  none: '',
+  sm: 'p-4',
+  md: 'p-5',
+  lg: 'p-7',
+}
+
+export function Card({ className, hover = false, padding = 'md', ...props }: CardProps) {
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-[20px] border border-line bg-white shadow-[0_24px_60px_rgba(15,23,42,0.08)]',
+        'rounded-2xl border border-stone-200 bg-white shadow-xs',
+        paddingMap[padding],
         hover &&
-          'transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-[0_30px_70px_rgba(15,23,42,0.16)]',
+          'transition-all duration-300 hover:-translate-y-1 hover:border-stone-300 hover:shadow-md',
         className,
       )}
       {...props}

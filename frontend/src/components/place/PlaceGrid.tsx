@@ -33,7 +33,7 @@ export function PlaceGrid({
 
 export function PlaceCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-[20px] border border-line bg-white shadow-[0_24px_60px_rgba(15,23,42,0.06)]">
+    <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xs">
       <Skeleton className="h-52 rounded-none" />
       <div className="space-y-3 p-5">
         <Skeleton className="h-6 w-24" />
@@ -42,7 +42,7 @@ export function PlaceCardSkeleton() {
         <Skeleton className="h-4 w-2/3" />
         <div className="flex justify-between pt-2">
           <Skeleton className="h-5 w-20" />
-          <Skeleton className="h-9 w-28 rounded-full" />
+          <Skeleton className="h-9 w-28 rounded-lg" />
         </div>
       </div>
     </div>

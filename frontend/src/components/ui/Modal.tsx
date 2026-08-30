@@ -38,7 +38,7 @@ export function Modal({ open, onClose, title, description, children, footer, cla
           <motion.button
             type="button"
             aria-label="Close dialog"
-            className="absolute inset-0 bg-ink/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-stone-900/50 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -49,7 +49,7 @@ export function Modal({ open, onClose, title, description, children, footer, cla
             aria-modal="true"
             aria-label={title}
             className={cn(
-              'relative w-full max-w-xl overflow-hidden rounded-3xl border border-line bg-white shadow-2xl',
+              'relative w-full max-w-xl overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-2xl',
               className,
             )}
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
@@ -57,22 +57,22 @@ export function Modal({ open, onClose, title, description, children, footer, cla
             exit={{ opacity: 0, y: 24, scale: 0.97 }}
             transition={{ duration: 0.22, ease: 'easeOut' }}
           >
-            <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-4">
+            <div className="flex items-start justify-between gap-4 border-b border-stone-200 px-6 py-4">
               <div>
                 {title ? <h2 className="text-lg font-bold tracking-tight">{title}</h2> : null}
-                {description ? <p className="mt-0.5 text-sm text-muted">{description}</p> : null}
+                {description ? <p className="mt-0.5 text-sm text-stone-400">{description}</p> : null}
               </div>
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="Close dialog"
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted transition hover:bg-slate-100 hover:text-ink"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-900"
               >
                 <X size={18} />
               </button>
             </div>
             <div className="max-h-[70vh] overflow-y-auto px-6 py-5">{children}</div>
-            {footer ? <div className="flex flex-wrap items-center justify-end gap-3 border-t border-line px-6 py-4">{footer}</div> : null}
+            {footer ? <div className="flex flex-wrap items-center justify-end gap-3 border-t border-stone-200 px-6 py-4">{footer}</div> : null}
           </motion.div>
         </div>
       ) : null}
