@@ -1,0 +1,1 @@
+<?php namespace App\Models; use Illuminate\Database\Eloquent\Model; class TripPlanItem extends Model { protected $fillable=['trip_plan_id','place_id','position','planned_arrival_time','planned_departure_time','travel_minutes','visit_minutes','distance_from_previous']; public function place(){return $this->belongsTo(Place::class);} }
