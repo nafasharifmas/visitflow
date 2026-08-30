@@ -7,7 +7,6 @@ import { PlaceGrid, PlaceGridSkeleton } from '@/components/place/PlaceGrid'
 import { TouristMap } from '@/components/map/TouristMap'
 import { Button } from '@/components/ui/Button'
 import { CategoryGlyph } from '@/lib/categoryIcon'
-import TouristScene from '@/components/three/TouristScene'
 import { getCategories } from '@/services/categories'
 import { getFeaturedPlaces, getPlaces } from '@/services/places'
 import { usePlannerStore } from '@/store/planner'
@@ -62,27 +61,27 @@ export function HomePage() {
 
   return (
     <>
-      <section className="relative flex min-h-[650px] items-center overflow-hidden">
+      <section className="relative flex min-h-[620px] items-center overflow-hidden">
         <div
           className="absolute inset-0"
           style={
             heroImage
               ? {
-                  backgroundImage: `linear-gradient(90deg, rgba(2,6,23,0.78) 0%, rgba(15,23,42,0.55) 45%, rgba(2,132,199,0.35) 100%), url(${heroImage})`,
+                  backgroundImage: `linear-gradient(90deg, rgba(28,25,23,0.82) 0%, rgba(28,25,23,0.5) 50%, rgba(28,25,23,0.25) 100%), url(${heroImage})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }
               : undefined
           }
         />
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(2,132,199,0.85),rgba(15,23,42,0.72)_50%,rgba(249,115,22,0.55))]" />
+        <div className="absolute inset-0 bg-stone-900/60" />
 
-        <div className="shell relative z-10 grid items-center gap-10 py-20 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
-          <div className="text-white">
+        <div className="shell relative z-10 py-24">
+          <div className="max-w-2xl text-white">
             <motion.p
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-extrabold uppercase tracking-[0.18em] text-ocean-200 backdrop-blur"
+              className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-brand-200 ring-1 ring-white/15 backdrop-blur"
             >
               <Sparkles size={14} />
               Local tourism, designed like a product
@@ -92,7 +91,7 @@ export function HomePage() {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.06 }}
-              className="mt-6 text-[2.25rem] font-bold leading-[1.04] tracking-tight sm:text-5xl lg:text-[64px]"
+              className="mt-6 text-4xl font-bold leading-[1.04] tracking-tight sm:text-5xl lg:text-6xl"
             >
               Discover hidden gems around you.
             </motion.h1>
@@ -112,18 +111,18 @@ export function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.18 }}
               role="search"
-              className="mt-8 flex max-w-xl items-center gap-2 rounded-full bg-white p-2 pr-1 shadow-[0_24px_60px_rgba(0,0,0,0.25)]"
+              className="mt-8 flex max-w-xl items-center gap-2 rounded-2xl bg-white p-2 pr-1.5 shadow-2xl"
             >
-              <Search size={20} className="ml-4 shrink-0 text-muted" />
+              <Search size={20} className="ml-4 shrink-0 text-stone-400" />
               <input
                 aria-label="Search places"
                 placeholder="Search beaches, culture, nature, and local places..."
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-muted/70"
+                className="w-full bg-transparent text-sm text-stone-900 outline-none placeholder:text-stone-400"
               />
               <Button type="submit" className="shrink-0">
-                Explore places
+                Search
               </Button>
             </motion.form>
 
@@ -131,14 +130,14 @@ export function HomePage() {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.24 }}
-              className="mt-7 flex flex-wrap items-center gap-4"
+              className="mt-7 flex flex-wrap items-center gap-3"
             >
               <Button to="/explore" size="lg">
                 Explore Places <ArrowRight size={18} />
               </Button>
               <Link
                 to="/planner"
-                className="inline-flex h-12 items-center gap-2 rounded-full border border-white/35 bg-white/10 px-7 text-[0.95rem] font-bold text-white backdrop-blur transition-all hover:scale-105 hover:bg-white/20"
+                className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/25 bg-white/10 px-6 text-sm font-semibold text-white backdrop-blur transition-all hover:scale-[1.02] hover:bg-white/20"
               >
                 <MapPinned size={18} />
                 Create Itinerary
@@ -151,45 +150,28 @@ export function HomePage() {
                 { value: loading ? '—' : categories.length, label: 'live categories' },
                 { value: 'API', label: 'driven travel data' },
               ].map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-white/15 bg-white/10 px-5 py-3 backdrop-blur">
-                  <strong className="block text-xl font-extrabold">{stat.value}</strong>
-                  <span className="text-xs font-semibold uppercase tracking-wide text-white/70">{stat.label}</span>
+                <div key={stat.label} className="rounded-xl border border-white/15 bg-white/10 px-5 py-3 backdrop-blur">
+                  <strong className="block text-xl font-bold text-white">{stat.value}</strong>
+                  <span className="text-xs font-medium uppercase tracking-wide text-white/70">{stat.label}</span>
                 </div>
               ))}
             </div>
           </div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="relative hidden h-[420px] lg:block"
-          >
-            <div className="animate-[float_7s_ease-in-out_infinite] absolute inset-0 overflow-hidden rounded-[32px] border border-white/25 bg-white/10 shadow-[0_40px_90px_rgba(0,0,0,0.35)] backdrop-blur"
-            >
-              <div className="absolute inset-0">
-                <TouristScene />
-              </div>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/70 to-transparent p-4">
-                <p className="text-sm font-semibold text-white">Your local day trip, visualised</p>
-              </div>
-            </div>
-          </motion.div>
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink/80 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
       </section>
 
       <main id="main-content" className="shell pb-16">
         <section className="py-16">
           <div className="mb-8">
-            <p className="kicker">CATEGORY EXPLORER</p>
+            <p className="kicker">Category Explorer</p>
             <h2 className="heading-2 mt-2">Start with the kind of day you want.</h2>
           </div>
           {loading ? (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
               {Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="h-36 animate-pulse rounded-3xl bg-slate-200/70" />
+                <div key={index} className="h-36 animate-pulse rounded-2xl bg-stone-200/70" />
               ))}
             </div>
           ) : (
@@ -198,13 +180,13 @@ export function HomePage() {
                 <Link
                   key={category.id}
                   to={`/explore?category=${category.slug}`}
-                  className="group min-w-[150px] snap-start rounded-3xl border border-line bg-white p-5 shadow-[0_24px_60px_rgba(15,23,42,0.06)] transition-all hover:-translate-y-1 hover:shadow-xl"
+                  className="group min-w-[150px] snap-start rounded-2xl border border-stone-200 bg-white p-5 shadow-xs transition-all hover:-translate-y-1 hover:border-stone-300 hover:shadow-md"
                 >
-                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-ocean-50 to-nature-50 text-ocean-600 transition-transform group-hover:scale-110">
+                  <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand-50 text-brand-600 transition-transform group-hover:scale-110">
                     <CategoryGlyph icon={category.icon} size={22} />
                   </span>
-                  <strong className="mt-3 block text-sm font-bold leading-snug">{category.name}</strong>
-                  <small className="mt-1 line-clamp-2 block text-xs text-muted">{category.description}</small>
+                  <strong className="mt-3 block text-sm font-semibold leading-snug">{category.name}</strong>
+                  <small className="mt-1 line-clamp-2 block text-xs text-stone-400">{category.description}</small>
                 </Link>
               ))}
             </div>
@@ -214,11 +196,11 @@ export function HomePage() {
         <section className="py-16">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="kicker">FEATURED DESTINATIONS</p>
+              <p className="kicker">Featured Destinations</p>
               <h2 className="heading-2 mt-2">Places ready for today.</h2>
-              <p className="mt-2 max-w-xl text-muted">Curated from places currently marked as featured in the live catalogue.</p>
+              <p className="mt-2 max-w-xl text-stone-500">Curated from places currently marked as featured in the live catalogue.</p>
             </div>
-            <Link to="/explore" className="inline-flex items-center gap-1 text-sm font-bold text-ocean-600 hover:text-ocean-700">
+            <Link to="/explore" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700">
               Browse all places <ArrowRight size={16} />
             </Link>
           </div>
@@ -249,13 +231,13 @@ export function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.08 }}
-                className="rounded-[20px] border border-line bg-white p-7 shadow-[0_24px_60px_rgba(15,23,42,0.07)]"
+                className="rounded-2xl border border-stone-200 bg-white p-7 shadow-xs"
               >
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-ocean-50 to-sunset-50 text-ocean-600">
+                <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand-50 text-brand-600">
                   {feature.icon}
                 </span>
-                <h3 className="mt-4 text-xl font-semibold tracking-tight">{feature.title}</h3>
-                <p className="mt-2 leading-relaxed text-muted">{feature.body}</p>
+                <h3 className="mt-4 text-lg font-semibold tracking-tight">{feature.title}</h3>
+                <p className="mt-2 leading-relaxed text-stone-500">{feature.body}</p>
               </motion.div>
             ))}
           </div>
@@ -264,9 +246,9 @@ export function HomePage() {
         <section className="py-16">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="kicker">MAP PREVIEW</p>
+              <p className="kicker">Map Preview</p>
               <h2 className="heading-2 mt-2">See where your day can take you.</h2>
-              <p className="mt-2 max-w-xl text-muted">Live markers straight from the same place API used across the whole app.</p>
+              <p className="mt-2 max-w-xl text-stone-500">Live markers straight from the same place API used across the whole app.</p>
             </div>
             <Button to="/map" variant="outline" size="lg">
               Open Full Map

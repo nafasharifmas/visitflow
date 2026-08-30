@@ -21,7 +21,7 @@ export function placeImageStyle(place: Pick<Place, 'images'>) {
   const image = place.images[0]?.image_url
   if (!image) return undefined
   return {
-    backgroundImage: `linear-gradient(180deg, rgba(15,23,42,0.02), rgba(15,23,42,0.55)), url(${image})`,
+    backgroundImage: `linear-gradient(180deg, rgba(28,25,23,0.02), rgba(28,25,23,0.5)), url(${image})`,
     backgroundSize: 'cover' as const,
     backgroundPosition: 'center' as const,
   }
@@ -39,9 +39,9 @@ export function PlaceCard({
 
   return (
     <motion.div whileHover={{ y: -6 }} transition={{ type: 'spring', stiffness: 320, damping: 22 }}>
-      <Card hover className={cn('h-full', className)}>
+      <Card hover className={cn('h-full overflow-hidden', className)}>
         <div
-          className={cn('relative flex h-52 flex-col justify-between p-4', !image && 'bg-[linear-gradient(135deg,#0284c7,#16a34a_55%,#f97316)]')}
+          className={cn('relative flex h-52 flex-col justify-between p-4', !image && 'bg-gradient-to-br from-brand-600 to-brand-800')}
           style={placeImageStyle(place)}
           role="img"
           aria-label={place.images[0]?.alt_text || place.name}
@@ -58,8 +58,8 @@ export function PlaceCard({
                 aria-label={favourite ? 'Remove from favourites' : 'Add to favourites'}
                 aria-pressed={favourite}
                 className={cn(
-                  'grid h-9 w-9 place-items-center rounded-full shadow-md transition-all hover:scale-110',
-                  favourite ? 'bg-sunset-500 text-white' : 'bg-white/90 text-ink',
+                  'grid h-9 w-9 place-items-center rounded-full shadow-sm transition-all hover:scale-110',
+                  favourite ? 'bg-danger-500 text-white' : 'bg-white/90 text-stone-800',
                 )}
               >
                 <Heart size={16} fill={favourite ? 'currentColor' : 'none'} />
@@ -67,12 +67,12 @@ export function PlaceCard({
             ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-ink/55 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
+            <span className="inline-flex items-center gap-1 rounded-full bg-stone-900/55 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur">
               <MapPinned size={13} /> {place.distance_from_home} km away
             </span>
             {Number(place.average_rating || 0) > 0 ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-ink">
-                <Star size={13} fill="currentColor" className="text-sunset-500" /> {Number(place.average_rating).toFixed(1)}
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-stone-900">
+                <Star size={13} fill="currentColor" className="text-warning-500" /> {Number(place.average_rating).toFixed(1)}
               </span>
             ) : null}
           </div>
@@ -80,18 +80,18 @@ export function PlaceCard({
 
         <div className="p-5">
           <div className="flex items-center justify-between gap-2">
-            <Badge variant="nature">{place.category.name}</Badge>
-            {place.is_featured ? <Badge variant="sunset">Featured</Badge> : null}
+            <Badge variant="brand">{place.category.name}</Badge>
+            {place.is_featured ? <Badge variant="warning">Featured</Badge> : null}
           </div>
-          <h3 className="mt-3 text-[20px] font-semibold leading-snug tracking-tight">{place.name}</h3>
-          <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">{place.short_description}</p>
+          <h3 className="mt-3 text-lg font-semibold leading-snug tracking-tight">{place.name}</h3>
+          <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-stone-500">{place.short_description}</p>
 
-          <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-4">
-            <Link to={`/places/${place.slug}`} className="text-sm font-bold text-ocean-600 transition-colors hover:text-ocean-700">
+          <div className="mt-4 flex items-center justify-between gap-2 border-t border-stone-100 pt-4">
+            <Link to={`/places/${place.slug}`} className="text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700">
               View Details
             </Link>
             {onTogglePlan ? (
-              <Button size="sm" variant={selected ? 'secondary' : 'sunset'} onClick={() => onTogglePlan(place.id)}>
+              <Button size="sm" variant={selected ? 'secondary' : 'primary'} onClick={() => onTogglePlan(place.id)}>
                 {selected ? 'Added ✓' : 'Add to Plan'}
               </Button>
             ) : null}

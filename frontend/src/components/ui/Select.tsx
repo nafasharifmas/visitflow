@@ -7,14 +7,14 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
     <div className="relative">
       <select
         className={cn(
-          'h-11 w-full appearance-none rounded-2xl border border-line bg-white px-4 pr-10 text-sm text-ink transition focus:border-ocean-400 focus:outline-none focus:ring-4 focus:ring-ocean-600/15',
+          'h-10 w-full appearance-none rounded-lg border border-stone-200 bg-white px-3.5 pr-9 text-sm text-stone-900 shadow-xs transition focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-500/10',
           className,
         )}
         {...props}
       >
         {children}
       </select>
-      <ChevronDown size={16} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-muted" />
+      <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-stone-400" />
     </div>
   )
 }

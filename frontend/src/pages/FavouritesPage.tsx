@@ -1,7 +1,10 @@
 ﻿import { useEffect, useState } from 'react'
+import { Heart } from 'lucide-react'
 import { Navigate } from 'react-router-dom'
 import { AsyncState } from '@/components/AsyncState'
-import { PlaceCard } from '@/components/PlaceCard'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Button } from '@/components/ui/Button'
+import { PlaceGrid, PlaceGridSkeleton } from '@/components/place/PlaceGrid'
 import { getFavourites, removeFavourite } from '@/services/favourites'
 import { useAuthStore } from '@/store/auth'
 import { usePlannerStore } from '@/store/planner'
@@ -33,26 +36,35 @@ export function FavouritesPage() {
   if (!user || !token) return <Navigate to="/login" replace />
 
   return (
-    <main className="page">
-      <p className="kicker">FAVOURITES</p>
-      <h1>Your saved places.</h1>
-      {loading ? <AsyncState message="Loading favourites..." /> : error ? <AsyncState message={error} tone="error" /> : places.length === 0 ? <AsyncState message="No favourites saved yet." /> : (
-        <section className="grid compact-grid">
-          {places.map((place) => (
-            <PlaceCard
-              key={place.id}
-              place={place}
-              favourite
-              onTogglePlan={(placeId) => addPlace(placeId)}
-              onToggleFavourite={async (placeId) => {
-                await removeFavourite(placeId, token)
-                setPlaces((state) => state.filter((item) => item.id !== placeId))
-              }}
-            />
-          ))}
-        </section>
+    <main className="shell py-10">
+      <div className="mb-8">
+        <p className="kicker">Favourites</p>
+        <h1 className="heading-1 mt-2">Your saved places.</h1>
+        <p className="mt-2 text-stone-500">Places you loved, kept in one place.</p>
+      </div>
+
+      {loading ? (
+        <PlaceGridSkeleton count={6} />
+      ) : error ? (
+        <AsyncState message={error} tone="error" />
+      ) : places.length === 0 ? (
+        <EmptyState
+          icon={<Heart size={24} />}
+          title="No favourites saved yet"
+          description="Tap the heart on any place you love to keep it here."
+          action={<Button to="/explore" variant="primary">Explore Places</Button>}
+        />
+      ) : (
+        <PlaceGrid
+          places={places}
+          selectedIds={[]}
+          onTogglePlan={(placeId) => addPlace(placeId)}
+          onToggleFavourite={async (placeId) => {
+            await removeFavourite(placeId, token)
+            setPlaces((state) => state.filter((item) => item.id !== placeId))
+          }}
+        />
       )}
     </main>
   )
 }
-

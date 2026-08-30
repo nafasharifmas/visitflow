@@ -3,6 +3,10 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Compass } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
+import { Field } from '@/components/ui/Field'
+import { Input } from '@/components/ui/Input'
 import { useAuthStore } from '@/store/auth'
 
 const loginSchema = z.object({
@@ -35,17 +39,19 @@ export function LoginPage() {
   }
 
   return (
-    <main className="page auth-page shell-page">
-      <section className="shell auth-shell">
-        <section className="auth-card premium-auth-card">
-          <div>
-            <p className="kicker">WELCOME BACK</p>
-            <h1>Sign in to keep your travel plans in sync.</h1>
-            <p>Use your Visit Flow account to save itineraries, favourites, and profile-backed travel history.</p>
-          </div>
+    <main className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-6 py-12">
+      <div className="w-full max-w-md">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-600 text-white shadow-sm">
+            <Compass size={22} />
+          </span>
+          <h1 className="mt-5 text-2xl font-bold tracking-tight text-stone-900">Welcome back</h1>
+          <p className="mt-1.5 text-sm text-stone-500">Sign in to keep your travel plans in sync.</p>
+        </div>
 
+        <div className="rounded-2xl border border-stone-200 bg-white p-8 shadow-sm">
           <form
-            className="auth-form"
+            className="space-y-5"
             onSubmit={form.handleSubmit(async (values) => {
               await login({
                 email: values.email.trim(),
@@ -54,31 +60,34 @@ export function LoginPage() {
               navigate('/explore')
             })}
           >
-            <label>
-              Email
-              <input type="email" {...form.register('email')} />
-              <span>{form.formState.errors.email?.message}</span>
-            </label>
-            <label>
-              Password
-              <input type="password" {...form.register('password')} />
-              <span>{form.formState.errors.password?.message}</span>
-            </label>
-            {error ? <p className="auth-error">{error}</p> : null}
-            <button className="primary" type="submit" disabled={busy}>
+            <Field htmlFor="email" label="Email" error={form.formState.errors.email?.message}>
+              <Input id="email" type="email" placeholder="you@example.com" {...form.register('email')} />
+            </Field>
+            <Field htmlFor="password" label="Password" error={form.formState.errors.password?.message}>
+              <Input id="password" type="password" placeholder="••••••••" {...form.register('password')} />
+            </Field>
+
+            {error ? <p className="text-sm font-medium text-danger-700">{error}</p> : null}
+
+            <Button type="submit" className="w-full" size="lg" disabled={busy}>
               {busy ? 'Signing in...' : 'Login'}
-            </button>
+            </Button>
           </form>
 
-          <div className="auth-meta">
-            <p>
-              New here? <Link to="/register">Create an account</Link>
-            </p>
-            <p className="auth-note">Demo user: `user@example.com` / `Password123!`</p>
-            <p className="auth-note">Demo admin: `admin@example.com` / `Password123!`</p>
-          </div>
-        </section>
-      </section>
+          <p className="mt-5 text-center text-sm text-stone-500">
+            New here?{' '}
+            <Link to="/register" className="font-semibold text-brand-600 hover:text-brand-700">
+              Create an account
+            </Link>
+          </p>
+        </div>
+
+        <div className="mt-5 rounded-xl border border-stone-200 bg-stone-100/60 p-4 text-xs text-stone-500">
+          <p className="font-medium text-stone-700">Demo accounts</p>
+          <p className="mt-1">User: user@example.com / Password123!</p>
+          <p className="mt-0.5">Admin: admin@example.com / Password123!</p>
+        </div>
+      </div>
     </main>
   )
 }

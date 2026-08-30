@@ -14,13 +14,13 @@ export function Field({ label, htmlFor, hint, error, className, children }: Fiel
   return (
     <div className={cn('grid gap-1.5', className)}>
       {label ? (
-        <label htmlFor={htmlFor} className="text-sm font-bold text-ink">
+        <label htmlFor={htmlFor} className="text-sm font-medium text-stone-800">
           {label}
         </label>
       ) : null}
       {children}
-      {hint && !error ? <p className="text-xs text-muted">{hint}</p> : null}
-      {error ? <p className="text-xs font-semibold text-red-600">{error}</p> : null}
+      {hint && !error ? <p className="text-xs text-stone-400">{hint}</p> : null}
+      {error ? <p className="text-xs font-medium text-danger-700">{error}</p> : null}
     </div>
   )
 }

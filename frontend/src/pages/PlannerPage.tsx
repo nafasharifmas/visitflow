@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
-import { CalendarDays, Clock3, MapPinned, Route } from 'lucide-react'
+import { CalendarDays, Check, Clock3, MapPinned, Route } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { AsyncState } from '@/components/AsyncState'
+import { Avatar } from '@/components/ui/Avatar'
+import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Field } from '@/components/ui/Field'
+import { Input } from '@/components/ui/Input'
 import { getPlaces } from '@/services/places'
 import { previewTrip } from '@/services/planner'
 import { createTripPlan } from '@/services/tripPlans'
@@ -115,181 +122,180 @@ export function PlannerPage() {
     }
   }
 
+  const stats = preview
+    ? [
+        { icon: <Route size={18} />, value: `${preview.total_distance} km`, label: 'Total distance' },
+        { icon: <Clock3 size={18} />, value: `${preview.total_travel_minutes} mins`, label: 'Travel time' },
+        { icon: <CalendarDays size={18} />, value: String(preview.stops.length), label: 'Confirmed stops' },
+        { icon: <MapPinned size={18} />, value: String(preview.skipped.length), label: 'Skipped stops' },
+      ]
+    : []
+
   return (
-    <main className="page shell-page">
-      <div className="shell section-stack">
-        <div className="section-heading section-heading-start">
-          <div>
-            <p className="kicker">ONE-DAY PLANNER</p>
-            <h1>Build a better day out.</h1>
-            <p>Select real places from the API, preview the route on the backend, and save the final plan to your account.</p>
-          </div>
-        </div>
-
-        {loading ? (
-          <AsyncState message="Loading planner places..." />
-        ) : error ? (
-          <AsyncState message={error} tone="error" />
-        ) : (
-          <div className="planner planner-wide premium-planner">
-            <section className="panel planner-catalogue">
-              <div className="panel-heading">
-                <div>
-                  <p className="kicker">SELECTED STOPS</p>
-                  <h2>Available places</h2>
-                </div>
-                <span className="chip">{selectedPlaces.length} chosen</span>
-              </div>
-              <div className="stack-list planner-stop-list">
-                {places.map((place) => (
-                  <button className={`stop ${placeIds.includes(place.id) ? 'stop-active' : ''}`} key={place.id} type="button" onClick={() => togglePlace(place.id)}>
-                    <span>{place.name}</span>
-                    <small>
-                      {place.category.name} · {place.distance_from_home} km · {place.visit_duration_minutes} minutes
-                    </small>
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            <aside className="planner-sidebar">
-              <section className="panel planner-form-panel">
-                <div className="panel-heading">
-                  <div>
-                    <p className="kicker">PLAN SETTINGS</p>
-                    <h2>Your day</h2>
-                  </div>
-                </div>
-                <div className="auth-form compact-form planner-form-grid">
-                  <label>
-                    Plan title
-                    <input value={form.title} onChange={(event) => setForm((state) => ({ ...state, title: event.target.value }))} />
-                  </label>
-                  <label>
-                    Travel date
-                    <input type="date" value={form.travel_date} onChange={(event) => setForm((state) => ({ ...state, travel_date: event.target.value }))} />
-                  </label>
-                  <label>
-                    Start latitude
-                    <input value={form.start_latitude} onChange={(event) => setForm((state) => ({ ...state, start_latitude: event.target.value }))} />
-                  </label>
-                  <label>
-                    Start longitude
-                    <input value={form.start_longitude} onChange={(event) => setForm((state) => ({ ...state, start_longitude: event.target.value }))} />
-                  </label>
-                  <label>
-                    Start address
-                    <input value={form.start_address} onChange={(event) => setForm((state) => ({ ...state, start_address: event.target.value }))} />
-                  </label>
-                  <label>
-                    Start time
-                    <input type="time" value={form.start_time} onChange={(event) => setForm((state) => ({ ...state, start_time: event.target.value }))} />
-                  </label>
-                  <label>
-                    End time
-                    <input type="time" value={form.end_time} onChange={(event) => setForm((state) => ({ ...state, end_time: event.target.value }))} />
-                  </label>
-                </div>
-              </section>
-
-              <section className="panel planner-selection-panel">
-                <div className="panel-heading">
-                  <div>
-                    <p className="kicker">TRIP TIMELINE</p>
-                    <h2>Selected places</h2>
-                  </div>
-                </div>
-                {selectedPlaces.length === 0 ? (
-                  <p>Select places to build your itinerary.</p>
-                ) : (
-                  <ol className="selected-list timeline-list">
-                    {selectedPlaces.map((place) => (
-                      <li key={place.id}>
-                        <div className="timeline-node" />
-                        <div>
-                          <strong>{place.name}</strong>
-                          <small>{place.category.name}</small>
-                        </div>
-                        <button type="button" onClick={() => removePlace(place.id)}>
-                          Remove
-                        </button>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-
-                <div className="button-row planner-actions">
-                  <button className="primary" type="button" disabled={busy || selectedPlaces.length === 0} onClick={handlePreview}>
-                    {busy ? 'Generating...' : 'Generate itinerary'}
-                  </button>
-                  <button className="secondary" type="button" onClick={clearPlaces}>
-                    Clear selection
-                  </button>
-                  <button className="secondary" type="button" onClick={handleSave} disabled={busy || !preview}>
-                    {user ? 'Save plan' : 'Sign in to save'}
-                  </button>
-                </div>
-              </section>
-
-              {preview ? (
-                <section className="panel planner-preview-card">
-                  <div className="panel-heading">
-                    <div>
-                      <p className="kicker">ROUTE SUMMARY</p>
-                      <h2>Preview</h2>
-                    </div>
-                  </div>
-                  <div className="route-summary-grid">
-                    <article>
-                      <Route size={18} />
-                      <strong>{preview.total_distance} km</strong>
-                      <span>Total distance</span>
-                    </article>
-                    <article>
-                      <Clock3 size={18} />
-                      <strong>{preview.total_travel_minutes} mins</strong>
-                      <span>Travel time</span>
-                    </article>
-                    <article>
-                      <CalendarDays size={18} />
-                      <strong>{preview.stops.length}</strong>
-                      <span>Confirmed stops</span>
-                    </article>
-                    <article>
-                      <MapPinned size={18} />
-                      <strong>{preview.skipped.length}</strong>
-                      <span>Skipped stops</span>
-                    </article>
-                  </div>
-                  <ul className="preview-list timeline-list preview-timeline">
-                    {preview.stops.map((stop) => (
-                      <li key={stop.place.id}>
-                        <div className="timeline-node" />
-                        <div>
-                          <strong>{stop.place.name}</strong>
-                          <small>
-                            {stop.arrival_time} - {stop.departure_time} · {stop.travel_minutes} min travel · {stop.distance_km} km
-                          </small>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                  {preview.skipped.length > 0 ? (
-                    <div className="stack-list">
-                      {preview.skipped.map((item, index) => (
-                        <div key={`${item.place}-${index}`} className="panel panel-warning panel-nested">
-                          <strong>{item.place}</strong>
-                          <p>{item.reason}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-                </section>
-              ) : null}
-            </aside>
-          </div>
-        )}
+    <main className="shell py-10">
+      <div className="mb-8">
+        <p className="kicker">One-Day Planner</p>
+        <h1 className="heading-1 mt-2">Build a better day out.</h1>
+        <p className="mt-2 max-w-2xl text-stone-500">
+          Select real places from the API, preview the route on the backend, and save the final plan to your account.
+        </p>
       </div>
+
+      {loading ? (
+        <AsyncState message="Loading planner places..." />
+      ) : error ? (
+        <AsyncState message={error} tone="error" />
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+          <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-xs">
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <p className="kicker">Available Places</p>
+                <h2 className="mt-1 text-lg font-semibold tracking-tight">Choose your stops</h2>
+              </div>
+              <Badge variant="brand">{selectedPlaces.length} chosen</Badge>
+            </div>
+            <div className="flex flex-col gap-2">
+              {places.map((place) => {
+                const selected = placeIds.includes(place.id)
+                return (
+                  <button
+                    key={place.id}
+                    type="button"
+                    onClick={() => togglePlace(place.id)}
+                    className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${
+                      selected
+                        ? 'border-brand-300 bg-brand-50'
+                        : 'border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50'
+                    }`}
+                  >
+                    <span
+                      className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border transition ${
+                        selected ? 'border-brand-600 bg-brand-600 text-white' : 'border-stone-300 bg-white text-transparent'
+                      }`}
+                    >
+                      <Check size={14} />
+                    </span>
+                    <Avatar name={place.name} size={36} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-stone-900">{place.name}</p>
+                      <p className="truncate text-xs text-stone-500">
+                        {place.category.name} · {place.distance_from_home} km · {place.visit_duration_minutes} minutes
+                      </p>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </section>
+
+          <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+            <Card padding="lg" className="shadow-sm">
+              <p className="kicker">Plan Settings</p>
+              <h2 className="mt-1 text-lg font-semibold tracking-tight">Your day</h2>
+              <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field label="Plan title"><Input value={form.title} onChange={(e) => setForm((s) => ({ ...s, title: e.target.value }))} /></Field>
+                <Field label="Travel date"><Input type="date" value={form.travel_date} onChange={(e) => setForm((s) => ({ ...s, travel_date: e.target.value }))} /></Field>
+                <Field label="Start latitude"><Input value={form.start_latitude} onChange={(e) => setForm((s) => ({ ...s, start_latitude: e.target.value }))} /></Field>
+                <Field label="Start longitude"><Input value={form.start_longitude} onChange={(e) => setForm((s) => ({ ...s, start_longitude: e.target.value }))} /></Field>
+                <Field label="Start address"><Input value={form.start_address} onChange={(e) => setForm((s) => ({ ...s, start_address: e.target.value }))} /></Field>
+                <Field label="Start time"><Input type="time" value={form.start_time} onChange={(e) => setForm((s) => ({ ...s, start_time: e.target.value }))} /></Field>
+                <Field label="End time"><Input type="time" value={form.end_time} onChange={(e) => setForm((s) => ({ ...s, end_time: e.target.value }))} /></Field>
+              </div>
+            </Card>
+
+            <Card padding="lg" className="shadow-sm">
+              <p className="kicker">Trip Timeline</p>
+              <h2 className="mt-1 text-lg font-semibold tracking-tight">Selected places</h2>
+              {selectedPlaces.length === 0 ? (
+                <EmptyState className="mt-4 py-8" title="No stops selected" description="Choose places on the left to build your itinerary." />
+              ) : (
+                <ol className="mt-4 space-y-0">
+                  {selectedPlaces.map((place, index) => (
+                    <li key={place.id} className="relative flex items-center gap-3 pb-4">
+                      {index < selectedPlaces.length - 1 ? (
+                        <span className="absolute left-[11px] top-6 h-full w-px bg-stone-200" />
+                      ) : null}
+                      <span className="relative z-10 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-600 text-[11px] font-semibold text-white">
+                        {index + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="truncate text-sm font-medium text-stone-900">{place.name}</p>
+                        <p className="text-xs text-stone-500">{place.category.name}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removePlace(place.id)}
+                        className="text-xs font-medium text-danger-700 transition hover:text-danger-500"
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ol>
+              )}
+
+              <div className="mt-4 grid gap-2">
+                <Button className="w-full" onClick={handlePreview} disabled={busy || selectedPlaces.length === 0}>
+                  {busy ? 'Generating...' : 'Generate itinerary'}
+                </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="secondary" onClick={clearPlaces}>Clear selection</Button>
+                  <Button variant="outline" onClick={handleSave} disabled={busy || !preview}>
+                    {user ? 'Save plan' : 'Sign in to save'}
+                  </Button>
+                </div>
+              </div>
+            </Card>
+
+            {preview ? (
+              <Card padding="lg" className="shadow-sm">
+                <p className="kicker">Route Summary</p>
+                <h2 className="mt-1 text-lg font-semibold tracking-tight">Preview</h2>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  {stats.map((stat) => (
+                    <div key={stat.label} className="flex items-center gap-3 rounded-xl bg-stone-50 p-3">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600">{stat.icon}</span>
+                      <div>
+                        <p className="text-sm font-semibold text-stone-900">{stat.value}</p>
+                        <p className="text-xs text-stone-400">{stat.label}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <ol className="mt-4 space-y-0">
+                  {preview.stops.map((stop, index) => (
+                    <li key={stop.place.id} className="relative flex items-start gap-3 pb-4">
+                      {index < preview.stops.length - 1 ? (
+                        <span className="absolute left-[11px] top-6 h-full w-px bg-stone-200" />
+                      ) : null}
+                      <span className="relative z-10 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-stone-200 text-[11px] font-semibold text-stone-600">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-stone-900">{stop.place.name}</p>
+                        <p className="text-xs text-stone-500">
+                          {stop.arrival_time} - {stop.departure_time} · {stop.travel_minutes} min travel · {stop.distance_km} km
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+                {preview.skipped.length > 0 ? (
+                  <div className="mt-2 space-y-2">
+                    {preview.skipped.map((item, index) => (
+                      <div key={`${item.place}-${index}`} className="rounded-lg border border-warning-500/20 bg-warning-50 p-3">
+                        <p className="text-sm font-medium text-warning-700">{item.place}</p>
+                        <p className="text-xs text-stone-500">{item.reason}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </Card>
+            ) : null}
+          </aside>
+        </div>
+      )}
     </main>
   )
 }

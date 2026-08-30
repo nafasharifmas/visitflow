@@ -74,6 +74,6 @@ describe('ExplorePage', () => {
     })
 
     expect(await screen.findByText('Emerald Coast')).toBeInTheDocument()
-    expect(screen.getByText('1 places found from the live catalogue.')).toBeInTheDocument()
+    expect(screen.getByText('1 places found')).toBeInTheDocument()
   })
 })
